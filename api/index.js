@@ -10,7 +10,6 @@ const STRIP_HEADERS = new Set([
   "proxy-authorization",
   "te",
   "trailer",
-  "transfer-encoding",
   "upgrade",
   "forwarded",
   "x-forwarded-host",
