@@ -46,12 +46,23 @@ export default async function handler(req) {
     const method = req.method;
     const hasBody = method !== "GET" && method !== "HEAD";
 
-    return await fetch(targetUrl, {
+    const upstream = await fetch(targetUrl, {
       method,
       headers: out,
       body: hasBody ? req.body : undefined,
       duplex: "half",
       redirect: "manual",
+    });
+
+    // Force Transfer-Encoding: chunked so Vercel streams the response immediately
+    const responseHeaders = new Headers(upstream.headers);
+    responseHeaders.set("Transfer-Encoding", "chunked");
+    responseHeaders.delete("Content-Length"); // remove if present to avoid conflict
+
+    return new Response(upstream.body, {
+      status: upstream.status,
+      statusText: upstream.statusText,
+      headers: responseHeaders,
     });
   } catch (err) {
     console.error("relay error:", err);
